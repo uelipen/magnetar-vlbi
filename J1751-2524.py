@@ -97,8 +97,6 @@ for antenna in ['fd','la'] :
 
 #np.save('sgramodel'+antenna+'ypol'+str(ipol)+'.npy',viscal1)
 
-plt.imshow(np.real(visc*viscal2),interpolation='nearest')
-
 plt.imshow(np.real(lag),interpolation='nearest')
 
 

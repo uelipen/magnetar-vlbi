@@ -3,7 +3,7 @@ import numpy as np
 from pylab import *
 import matplotlib.pylab as plt
 
-antenna='fd'
+antenna='la'
 
 pulses1=np.load('NP/scan1.npy')
 pulses2=np.load('NP/scan2.npy')
@@ -23,8 +23,8 @@ pulses=np.vstack([pulses1,pulses2[1:,:],pulses2[-2:-1,:],pulses3,pulses4,pulses4
 
 nt=pulses.shape[0]
 print nt
-visc0=np.load('pty'+antenna+'0.npy')
-times=np.load('times'+antenna+'.npy')
+visc0=np.load('pty'+antenna+'y0.npy')
+times=np.load('time'+antenna+'y.npy')
 dt=times-times[0]
 dt1=dt/dt[1]
 tn=times[:nt]
@@ -54,8 +54,8 @@ visc[:,245:460:,300:315]=0
 visc=np.reshape(visc,(42,nt,8,128))
 visc=np.reshape(visc[:,:,:,-1::-1],(42,nt,8*128))
 
-#tmp=np.load('sgramodel'+antenna+'ypol0.npy')
-tmp=np.load('J1751model'+antenna+'ypol0.npy')
+tmp=np.load('sgramodel'+antenna+'ypol0.npy')
+#tmp=np.load('J1751model'+antenna+'ypol0.npy')
 visc=visc*tmp[np.newaxis,:,:]
 imshow(np.abs(visc[20,:,:].T),interpolation='nearest')
 vis1=visc/sqrt(np.abs(visc)+1.e-20)
