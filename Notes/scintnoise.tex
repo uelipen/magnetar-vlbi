@@ -1,0 +1,27 @@
+\documentclass{article}
+
+\begin{document}
+
+pulsar intensities are $\chi^2$ distributed with two degrees of
+freedom (Gwinn XXX).  
+\begin{equation}
+P(I)=\left\{\begin{array}{ll}
+\exp(-I/I_0)/I_0 \ \ \ \ & I>0 \\
+             0 & {\rm otherwise}
+\end{array}
+\right.
+\end{equation}
+Our goal is to measure the mean flux $I_0$ (or any other S/N dependent
+quantity such as ToA).  A linear estimator from $n$ samples is
+\begin{equation}
+\langle I_0 \rangle = \frac{\sum_{i} I_i}{n}
+\end{equation}
+We model each sample to have a measurement noise $\sigma$, and that
+the pulsar does not dominate $T_{\rm sys}$.  The optimal weight is
+$I$, giving mean and variances
+\begin{equation}
+\langle \Delta I_0^2 \rangle = \frac{\sum_{i=0}^{n-1} I^2_i}{n}
+\end{equation}
+
+
+\end{document}
