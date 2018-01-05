@@ -35,10 +35,12 @@ def svd_model(arr, phase_only=True):
 
 
 nrfft=32
-ipol=0
-for antenna in ['fd','la'] :
-    visc0=np.load('pty'+antenna+'yJ1751-2524.npy')
-    times=np.load('time'+antenna+'yJ1751-2524.npy')
+session='B'
+#session=''
+for ipol in range(1) : 
+  for antenna in ['ov'] :
+    visc0=np.load('pty'+antenna+'yJ1751-2524'+session+'.npy')
+    times=np.load('time'+antenna+'yJ1751-2524'+session+'.npy')
     visc=np.reshape(visc0[:,:,ipol],(visc0.shape[0],8,256))
     visc=np.reshape(visc[:,:,-1::-1],(visc0.shape[0],8*256))
     visc=visc/abs(visc)
@@ -81,6 +83,11 @@ for antenna in ['fd','la'] :
     viscal2=viscal2*finefreq
     viscal1=np.reshape(viscal2,(viscal2.shape[0],1024,2)).mean(axis=2)
 
+    if (ipol == 1 and (antenna != 'kp1' or session == 'B')   ) :
+    	viscal1[:212,:]=0
+    	viscal1[220:232,:]=0
+    	viscal1[242:254,:]=0
+    	viscal1[257:,:]=0
     viscal1[:3*nt/4,:]=0
 
     u,s,w = np.linalg.svd(viscal1)
@@ -88,21 +95,70 @@ for antenna in ['fd','la'] :
     vtemp=u[:,0]
     vtemp[:3*nt/4]=0
     nf=1000
-    omega=4000.*(arange(nf)-nf/2.)/nf
+    omegamax=4000
+    if ( antenna == 'ov' and ipol == 0) :
+	omegamax=1000
+    if ( antenna == 'kp' and ipol == 1) :
+	omegamax=1000
+    if ( antenna == 'fd' and ipol == 0 and session != 'C') :
+	omegamax=1000
+    if ( antenna == 'fd' and ipol == 0 and session == 'C') :
+	omegamax=1500
+    if ( antenna == 'la' and ipol == 1 and session=='B') :
+	omegamax=1000
+    if ( antenna == 'kp' and ipol == 0 and session=='B') :
+	omegamax=1000
+    if ( antenna == 'pt' and ipol == 1 ) :
+	omegamax=1000
+	if (session == 'C') :
+		omegamax=3000
+    if ( antenna == 'pt' and session == 'C') :
+	omegamax=1000
+    omega=omegamax*(arange(nf)-nf/2.)/nf
+    if ( antenna == 'fd' and ipol == 1 and session=='B') :
+	omegamax=700.
+        omega=omegamax*arange(nf/2)/nf
+    if ( antenna == 'pt1' and ipol == 1 and session=='C') :
+	omegamax=700.
+        omega=omegamax*(arange(nf)*1./nf-1)
+    if ( antenna == 'fd' and ipol == 1 and session=='C') :
+	omegamax=700.
+        omega=omegamax*(arange(nf)*1./nf+0.1)
     ft=(exp(-omega[:,np.newaxis]*times*(0.+1.j))*u[:,0]).mean(axis=1)
     fmax=np.argmax(abs(ft))
     tmodel=ft[fmax]*exp((0.+1.j)*times*omega[fmax])
-    np.save('J1751model'+antenna+'ypol'+str(ipol)+'.npy',viscal1)
-    np.save('J1751modelsvd'+antenna+'ypol'+str(ipol)+'.npy',(w[0,:],omega[fmax],ft[fmax]))
+#    np.save('J1751model'+antenna+'ypol'+str(ipol)+'.npy',viscal1)
+    np.save('J1751modelsvd'+antenna+'ypol'+str(ipol)+session+'.npy',(w[0,:],omega[fmax],ft[fmax]))
+    print omega[fmax]
 
 #np.save('sgramodel'+antenna+'ypol'+str(ipol)+'.npy',viscal1)
+plt.figure()
+plt.plot(omega,np.abs(ft))
+
+plt.figure()
+plt.plot(times,np.angle(u[:,0]),"o")
+plt.plot(times,np.angle(tmodel),"x")
 
 plt.imshow(np.real(lag),interpolation='nearest')
+
+vismodel=tmodel[:,np.newaxis]*w[0,:]
+visc1=np.reshape(visc,(visc.shape[0],1024,2)).mean(axis=2)
+
+plt.figure()
+plt.imshow(np.real(visc1*vismodel),interpolation='nearest')
+plt.figure()
+plt.imshow(np.imag(visc1*vismodel),interpolation='nearest')
 
 
 
 plt.imshow(np.real(visc*viscal2),interpolation='nearest')
 
+plt.figure()
+plt.imshow(np.real(visc),interpolation='nearest')
+
 
 
 lag=np.fft.fftshift(np.fft.fft(visc,axis=1),axes=(1,))
+plt.figure()
+plt.imshow(np.real(lag),interpolation='nearest')
+
